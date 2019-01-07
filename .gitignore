@@ -204,3 +204,6 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+
+# Saverio dev settings
+.vscode/

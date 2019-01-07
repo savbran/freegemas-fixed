@@ -1,12 +1,15 @@
-#include "GameBoard.h"
 
+// Saverio: added import of <functional> library
+#include <functional>
+
+// Saverio: ordered imports of game libraries
 #include "Game.h"
+#include "GameBoard.h"
 #include "StateGame.h"
 
 using namespace std::placeholders;
 
-
-void GameBoard::setGame(Game * game, StateGame * stateGame)
+void GameBoard::setGame(Game *game, StateGame *stateGame)
 {
     mGame = game;
     mStateGame = stateGame;
@@ -38,14 +41,14 @@ void GameBoard::resetGame()
     }
 
     // Otherwise, directly generate and show the new board
-    else {
+    else
+    {
         // Generate a brand new board
         mBoard.generate();
 
         // Switch state
         mState = eBoardAppearing;
     }
-
 }
 
 void GameBoard::endGame(int score)
@@ -94,7 +97,7 @@ void GameBoard::update()
     else if (mState == eBoardAppearing)
     {
         // Update the animation frame
-        mAnimationCurrentStep ++;
+        mAnimationCurrentStep++;
 
         // If the Animation.has finished, switch to steady state
         if (mAnimationCurrentStep == mAnimationLongTotalSteps)
@@ -107,7 +110,7 @@ void GameBoard::update()
     else if (mState == eGemSwitching)
     {
         // Update the animation frame
-        mAnimationCurrentStep ++;
+        mAnimationCurrentStep++;
 
         // If the Animation.has finished, matching gems should disappear
         if (mAnimationCurrentStep == mAnimationShortTotalSteps)
@@ -137,7 +140,7 @@ void GameBoard::update()
     else if (mState == eGemDisappearing)
     {
         // Update the animation frame
-        mAnimationCurrentStep ++;
+        mAnimationCurrentStep++;
 
         // If the Animation.has finished
         if (mAnimationCurrentStep == mAnimationShortTotalSteps)
@@ -146,9 +149,9 @@ void GameBoard::update()
             mState = eBoardFilling;
 
             // Delete the squares that were matched in the board
-            for(size_t i = 0; i < mGroupedSquares.size(); ++i)
+            for (size_t i = 0; i < mGroupedSquares.size(); ++i)
             {
-                for(size_t j = 0; j < mGroupedSquares[i].size(); ++j)
+                for (size_t j = 0; j < mGroupedSquares[i].size(); ++j)
                 {
                     mBoard.del(mGroupedSquares[i][j].x, mGroupedSquares[i][j].y);
                 }
@@ -166,7 +169,7 @@ void GameBoard::update()
     else if (mState == eBoardFilling)
     {
         // Update the animation frame
-        mAnimationCurrentStep ++;
+        mAnimationCurrentStep++;
 
         // If the Animation.has finished
         if (mAnimationCurrentStep == mAnimationShortTotalSteps)
@@ -187,7 +190,7 @@ void GameBoard::update()
             mGroupedSquares = mBoard.check();
 
             // If there are...
-            if (! mGroupedSquares.empty())
+            if (!mGroupedSquares.empty())
             {
                 // Increase the score mMultiplier
                 ++mMultiplier;
@@ -218,7 +221,7 @@ void GameBoard::update()
     else if (mState == eBoardDisappearing)
     {
         // Update the animation frame
-        mAnimationCurrentStep ++;
+        mAnimationCurrentStep++;
 
         // If the Animation.has finished
         if (mAnimationCurrentStep == mAnimationLongTotalSteps)
@@ -238,7 +241,7 @@ void GameBoard::update()
     else if (mState == eTimeFinished)
     {
         // Update the animation frame
-        mAnimationCurrentStep ++;
+        mAnimationCurrentStep++;
 
         // If the Animation.has finished
         if (mAnimationCurrentStep == mAnimationLongTotalSteps)
@@ -253,27 +256,27 @@ void GameBoard::update()
 
     // Remove the hidden floating score
     mFloatingScores.erase(
-        remove_if (mFloatingScores.begin(),
-                   mFloatingScores.end(),
-                   std::bind<bool>(&FloatingScore::ended, _1)),
+        remove_if(mFloatingScores.begin(),
+                  mFloatingScores.end(),
+                  std::bind<bool>(&FloatingScore::ended, _1)),
         mFloatingScores.end());
 
     // Remove the hiden particle systems
     mParticleSet.erase(
-        remove_if (mParticleSet.begin(),
-                   mParticleSet.end(),
-                   std::bind<bool>(&ParticleSystem::ended, _1)),
+        remove_if(mParticleSet.begin(),
+                  mParticleSet.end(),
+                  std::bind<bool>(&ParticleSystem::ended, _1)),
         mParticleSet.end());
 }
 
 void GameBoard::draw()
 {
     // Get mouse position
-    int mX = (int) mGame -> getMouseX();
-    int mY = (int) mGame -> getMouseY();
+    int mX = (int)mGame->getMouseX();
+    int mY = (int)mGame->getMouseY();
 
     // Draw the selector if the mouse is over a gem
-    if (overGem(mX, mY) )
+    if (overGem(mX, mY))
     {
         // Draw the selector over that gem
         mImgSelector.draw(
@@ -286,8 +289,8 @@ void GameBoard::draw()
     if (mState == eGemSelected)
     {
         mImgSelector.draw(241 + mSelectedSquareFirst.x * 65,
-              41 + mSelectedSquareFirst.y * 65,
-              4, 1, 1, 0, 255, {0, 255, 255, 255});
+                          41 + mSelectedSquareFirst.y * 65,
+                          4, 1, 1, 0, 255, {0, 255, 255, 255});
     }
 
     // Draw the hint
@@ -295,68 +298,67 @@ void GameBoard::draw()
 
     // Draw each floating score
     std::for_each(mFloatingScores.begin(),
-      mFloatingScores.end(),
-      std::bind(&FloatingScore::draw, _1));
+                  mFloatingScores.end(),
+                  std::bind(&FloatingScore::draw, _1));
 
     // Draw each particle system
     std::for_each(mParticleSet.begin(),
-      mParticleSet.end(),
-      std::bind(&ParticleSystem::draw, _1));
+                  mParticleSet.end(),
+                  std::bind(&ParticleSystem::draw, _1));
 
     // If game has finished, draw the score table
     if (mState == eShowingScoreTable)
     {
-        scoreTable -> draw(241 + (65 * 8) / 2 - 150  , 105, 3);
+        scoreTable->draw(241 + (65 * 8) / 2 - 150, 105, 3);
     }
 
-
     // On to the gem drawing procedure. Let's have a pointer to the image of each gem
-    GoSDL::Image * img = NULL;
+    GoSDL::Image *img = NULL;
 
     // Top left position of the board
     int posX = 241;
     int posY = 41;
 
-    for(int i = 0; i < 8; ++i)
+    for (int i = 0; i < 8; ++i)
     {
-        for(int j = 0; j < 8; ++j)
+        for (int j = 0; j < 8; ++j)
         {
             // Reset the pointer
             img = NULL;
 
             // Check the type of each square and
             // save the proper image in the img pointer
-            switch(mBoard.squares[i][j])
+            switch (mBoard.squares[i][j])
             {
-                case sqWhite:
+            case sqWhite:
                 img = &mImgWhite;
                 break;
 
-                case sqRed:
+            case sqRed:
                 img = &mImgRed;
                 break;
 
-                case sqPurple:
+            case sqPurple:
                 img = &mImgPurple;
                 break;
 
-                case sqOrange:
+            case sqOrange:
                 img = &mImgOrange;
                 break;
 
-                case sqGreen:
+            case sqGreen:
                 img = &mImgGreen;
                 break;
 
-                case sqYellow:
+            case sqYellow:
                 img = &mImgYellow;
                 break;
 
-                case sqBlue:
+            case sqBlue:
                 img = &mImgBlue;
                 break;
 
-                case sqEmpty:
+            case sqEmpty:
                 img = NULL;
                 break;
             }
@@ -374,17 +376,17 @@ void GameBoard::draw()
             if (mState == eBoardAppearing)
             {
                 imgY = Animacion::easeOutQuad(
-                        float(mAnimationCurrentStep),
-                        float(posY + mBoard.squares[i][j].origY * 65),
-                        float(mBoard.squares[i][j].destY * 65),
-                        float(mAnimationLongTotalSteps));
+                    float(mAnimationCurrentStep),
+                    float(posY + mBoard.squares[i][j].origY * 65),
+                    float(mBoard.squares[i][j].destY * 65),
+                    float(mAnimationLongTotalSteps));
             }
 
             // When two correct gems have been selected, they switch positions
             else if (mState == eGemSwitching)
             {
                 // If the current gem is the first selected square
-                if (mSelectedSquareFirst.equals(i,j))
+                if (mSelectedSquareFirst.equals(i, j))
                 {
                     imgX = Animacion::easeOutQuad(
                         float(mAnimationCurrentStep),
@@ -400,7 +402,7 @@ void GameBoard::draw()
                 }
 
                 // If the current gem is the second selected square
-                else if (mSelectedSquareSecond.equals(i,j))
+                else if (mSelectedSquareSecond.equals(i, j))
                 {
                     imgX = Animacion::easeOutQuad(
                         float(mAnimationCurrentStep),
@@ -421,7 +423,7 @@ void GameBoard::draw()
             {
                 if (mGroupedSquares.matched(Coord(i, j)))
                 {
-                    imgAlpha = 255 * (1 -(float)mAnimationCurrentStep/mAnimationShortTotalSteps);
+                    imgAlpha = 255 * (1 - (float)mAnimationCurrentStep / mAnimationShortTotalSteps);
                 }
             }
 
@@ -442,10 +444,10 @@ void GameBoard::draw()
             else if (mState == eBoardDisappearing || mState == eTimeFinished)
             {
                 imgY = Animacion::easeInQuad(
-                        float(mAnimationCurrentStep),
-                        float(posY + mBoard.squares[i][j].origY * 65),
-                        float(mBoard.squares[i][j].destY * 65),
-                        float(mAnimationLongTotalSteps));
+                    float(mAnimationCurrentStep),
+                    float(posY + mBoard.squares[i][j].origY * 65),
+                    float(mBoard.squares[i][j].destY * 65),
+                    float(mAnimationLongTotalSteps));
             }
 
             else if (mState == eShowingScoreTable)
@@ -455,8 +457,6 @@ void GameBoard::draw()
 
             img->draw(imgX, imgY, 3, 1, 1, 0, imgAlpha);
         }
-
-
     }
 }
 
@@ -514,7 +514,7 @@ void GameBoard::mouseButtonUp(int mX, int mY)
     }
 }
 
-void GameBoard::showHint ()
+void GameBoard::showHint()
 {
     // Get possible hint locations
     vector<Coord> hintLocations = mBoard.solutions();
@@ -526,22 +526,21 @@ void GameBoard::showHint ()
 void GameBoard::createFloatingScores()
 {
     // For each match in the group of matched squares
-    for (Match & m : mGroupedSquares)
+    for (Match &m : mGroupedSquares)
     {
         // Create a new floating score image
         mFloatingScores.emplace_back(FloatingScore(mGame,
-           m.size() * 5 * mMultiplier,
-           m.midSquare().x,
-           m.midSquare().y, 80));
+                                                   m.size() * 5 * mMultiplier,
+                                                   m.midSquare().x,
+                                                   m.midSquare().y, 80));
 
         // Create a new particle system for it to appear over the square
-        for(size_t i = 0, s = m.size(); i < s; ++i)
+        for (size_t i = 0, s = m.size(); i < s; ++i)
         {
             mParticleSet.emplace_back(ParticleSystem(mGame,
-                50, 50,
-                241 + m[i].x * 65 + 32,
-                41 + m[i].y * 65 + 32, 60, 0.5));
-
+                                                     50, 50,
+                                                     241 + m[i].x * 65 + 32,
+                                                     41 + m[i].y * 65 + 32, 60, 0.5));
         }
 
         mStateGame->increaseScore(m.size() * 5 * mMultiplier);
@@ -565,17 +564,17 @@ void GameBoard::playMatchSound()
 }
 
 /// Tests if the mouse is over a gem
-bool GameBoard::overGem (int mX, int mY)
+bool GameBoard::overGem(int mX, int mY)
 {
     return (mX > 241 && mX < 241 + 65 * 8 &&
-        mY > 41 && mY < 41 + 65 * 8);
+            mY > 41 && mY < 41 + 65 * 8);
 }
 
 /// Returns the coords of the gem the mouse is over
-Coord GameBoard::getCoord (int mX, int mY)
+Coord GameBoard::getCoord(int mX, int mY)
 {
-    return Coord((mX - 241) / 65 ,
-       (mY - 41) / 65 );
+    return Coord((mX - 241) / 65,
+                 (mY - 41) / 65);
 }
 
 bool GameBoard::checkClickedSquare(int mX, int mY)
@@ -585,7 +584,8 @@ bool GameBoard::checkClickedSquare(int mX, int mY)
 
     // If it's a contiguous square
     if (abs(mSelectedSquareFirst.x - mSelectedSquareSecond.x) +
-        abs(mSelectedSquareFirst.y - mSelectedSquareSecond.y) == 1)
+            abs(mSelectedSquareFirst.y - mSelectedSquareSecond.y) ==
+        1)
     {
         // Create a temporal board with the movement already performed
         Board temporal = mBoard;
@@ -596,7 +596,7 @@ bool GameBoard::checkClickedSquare(int mX, int mY)
         mGroupedSquares = temporal.check();
 
         // If there are winning movements
-        if (! mGroupedSquares.empty())
+        if (!mGroupedSquares.empty())
         {
             return true;
         }

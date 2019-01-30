@@ -1,3 +1,9 @@
+__Note:__ this is a fork of the [upstream project](https://github.com/JoseTomasTocino/freegemas) which contains
+- Addition of fixes for bugs already opened on upstream but never closed by the original author.
+- Addition of a desktop launcher with icon.
+
+------------
+
 <p align="center">
     <img src="https://raw.githubusercontent.com/JoseTomasTocino/freegemas/static/images/header_logo.png"><br>
     <img src="https://raw.githubusercontent.com/JoseTomasTocino/freegemas/static/images/header_gems.png"><br>

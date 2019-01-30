@@ -29,7 +29,7 @@ Next, install SDL2 from the repositories:
     
 After that, clone the repo:
 
-    git clone https://github.com/JoseTomasTocino/freegemas.git
+    git clone https://github.com/savbran/freegemas-fixed.git
     
 Do an out-of-source compilation and run the program:
 
